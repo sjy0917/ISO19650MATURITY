@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BIM 成熟度自評 — 雷達圖模板 | ISO 19650</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Arial, sans-serif; background: #F7F8FA; color: #1A1A1A; padding: 24px 16px; }
+.container { max-width: 960px; margin: 0 auto; }
+.header-row { display: flex; align-items: center; gap: 12px; margin-bottom: 1.5rem; flex-wrap: wrap; }
+.title-block h2 { font-size: 22px; font-weight: 600; color: #1A2B3C; }
+.title-block p { font-size: 13px; color: #666; margin-top: 3px; }
+.badge { background: #E1F5EE; color: #0F6E56; font-size: 11px; font-weight: 600;
+         padding: 3px 10px; border-radius: 20px; white-space: nowrap; border: 1px solid #9FE1CB; }
+.meta-row { display: flex; gap: 12px; margin-bottom: 1.5rem; flex-wrap: wrap; }
+.meta-input { flex: 1; min-width: 160px; }
+.meta-input label { font-size: 12px; color: #666; display: block; margin-bottom: 4px; }
+.meta-input input { width: 100%; padding: 7px 10px; font-size: 13px;
+                    border: 1px solid #D0D5DD; border-radius: 6px; background: #fff; color: #1A1A1A; }
+.meta-input input:focus { outline: none; border-color: #1D9E75; }
+.layout { display: grid; grid-template-columns: 1fr 370px; gap: 20px; align-items: start; }
+@media (max-width: 720px) { .layout { grid-template-columns: 1fr; } }
+.sliders-panel { display: flex; flex-direction: column; gap: 10px; }
+.dim-card { background: #fff; border: 1px solid #E5E7EB; border-radius: 12px; padding: 14px 16px; }
+.dim-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.dim-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.dim-name { font-size: 14px; font-weight: 600; color: #1A1A1A; }
+.dim-sub { font-size: 11px; color: #888; margin-left: 2px; }
+.dim-desc { font-size: 11px; color: #666; margin-bottom: 10px; line-height: 1.5; }
+.slider-row { display: flex; align-items: center; gap: 10px; }
+.slider-row input[type=range] {
+  flex: 1; cursor: pointer;
+  -webkit-appearance: none; appearance: none;
+  height: 4px; border-radius: 2px;
+  background: #E5E7EB; outline: none;
+}
+.slider-row input[type=range]::-webkit-slider-runnable-track {
+  height: 4px; border-radius: 2px; background: #E5E7EB;
+}
+.slider-row input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 18px; height: 18px; border-radius: 50%;
+  border: 2.5px solid #fff; box-shadow: 0 0 0 1px rgba(0,0,0,0.15);
+  margin-top: -7px; cursor: pointer;
+}
+.slider-row input[type=range]::-moz-range-track {
+  height: 4px; border-radius: 2px; background: #E5E7EB; border: none;
+}
+.slider-row input[type=range]::-moz-range-thumb {
+  width: 18px; height: 18px; border-radius: 50%;
+  border: 2.5px solid #fff; box-shadow: 0 0 0 1px rgba(0,0,0,0.15); cursor: pointer;
+}
+.score-badge { min-width: 34px; text-align: center; font-size: 15px; font-weight: 700;
+               padding: 2px 8px; border-radius: 6px; }
+.level-label { font-size: 11px; color: #888; min-width: 54px; text-align: right; }
+.chart-panel { position: sticky; top: 16px; }
+.chart-box { background: #fff; border: 1px solid #E5E7EB; border-radius: 12px; padding: 18px; }
+.chart-box h3 { font-size: 15px; font-weight: 600; color: #1A2B3C; margin-bottom: 3px; }
+.chart-box .subtitle { font-size: 11px; color: #888; margin-bottom: 14px; }
+.chart-wrap { position: relative; height: 290px; }
+.summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 14px; }
+.summary-card { background: #F5F9FC; border-radius: 8px; padding: 7px 8px; text-align: center; }
+.summary-card .val { font-size: 18px; font-weight: 700; }
+.summary-card .lbl { font-size: 10px; color: #666; margin-top: 2px; }
+.avg-bar { margin-top: 12px; padding: 11px 14px; border-radius: 8px;
+           background: #E1F5EE; display: flex; align-items: center; justify-content: space-between; }
+.avg-label { font-size: 12px; color: #0F6E56; font-weight: 600; }
+.level-text { font-size: 11px; color: #0F6E56; margin-top: 2px; }
+.avg-val { font-size: 22px; font-weight: 700; color: #0F6E56; }
+.divider { border: none; border-top: 1px solid #E5E7EB; margin: 12px 0; }
+.btn { width: 100%; padding: 9px; font-size: 13px; border-radius: 8px; cursor: pointer;
+       display: block; text-align: center; margin-top: 8px; font-weight: 500; }
+.btn-outline { background: #fff; border: 1px solid #D0D5DD; color: #1A1A1A; }
+.btn-outline:hover { background: #F5F5F5; }
+.btn-teal { background: #E1F5EE; border: 1px solid #9FE1CB; color: #0F6E56; }
+.btn-teal:hover { background: #C5EBD9; }
+.watermark { font-size: 11px; color: #BBB; text-align: center; margin-top: 20px; }
+@media print {
+  body { background: white; padding: 8px; }
+  .btn, .meta-input input { display: none; }
+  .sliders-panel { display: none; }
+  .layout { grid-template-columns: 1fr; }
+  .chart-panel { position: static; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header-row">
+    <div class="title-block">
+      <h2>BIM 成熟度自評 — 雷達圖模板</h2>
+      <p>ISO 19650 互動活動 1 ｜ 依 6 大面向進行 1–5 分自評</p>
+    </div>
+    <span class="badge">ISO 19650</span>
+  </div>
+
+  <div class="meta-row">
+    <div class="meta-input"><label>組別名稱</label>
+      <input type="text" id="groupName" placeholder="例：A 組 / 業主方" oninput="updateSubtitle()" /></div>
+    <div class="meta-input"><label>組織 / 公司</label>
+      <input type="text" id="orgName" placeholder="例：OO營造" oninput="updateSubtitle()" /></div>
+    <div class="meta-input"><label>評估日期</label>
+      <input type="date" id="evalDate" /></div>
+  </div>
+
+  <div class="layout">
+    <div class="sliders-panel" id="slidersPanel"></div>
+    <div class="chart-panel">
+      <div class="chart-box">
+        <h3>成熟度雷達圖</h3>
+        <p class="subtitle" id="chartSubtitle">調整左側滑桿，雷達圖即時更新</p>
+        <div class="chart-wrap"><canvas id="radarChart"></canvas></div>
+        <div class="summary-grid" id="summaryGrid"></div>
+        <div class="avg-bar">
+          <div>
+            <div class="avg-label">綜合平均分數</div>
+            <div class="level-text" id="levelText">—</div>
+          </div>
+          <div class="avg-val" id="avgScore">–</div>
+        </div>
+        <hr class="divider" />
+        <button class="btn btn-teal" onclick="exportAnalysis()">複製分析摘要文字</button>
+        <button class="btn btn-outline" onclick="window.print()">🖨️ 列印 / 儲存 PDF</button>
+      </div>
+    </div>
+  </div>
+
+  <p class="watermark">MikeBIM 顧問 ｜ ISO 19650 BIM 成熟度自評工作坊 ｜ bim_maturity_radar_template</p>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const dims = [
+  { key:'strategy',   name:'策略', sub:'Strategy',   color:'#1D9E75',
+    desc:'BIM 導入的願景目標、商業案例與高層支持程度',
+    levels:['無 BIM 策略','初步認知','策略文件化','策略 KPI 追蹤','業界標竿'] },
+  { key:'people',     name:'人員', sub:'People',     color:'#378ADD',
+    desc:'角色定義、能力培訓與 BIM 職能建立',
+    levels:['無專責人員','部分培訓','角色責任明確','能力評估系統化','跨組織學習文化'] },
+  { key:'process',    name:'流程', sub:'Process',    color:'#D4537E',
+    desc:'BIM 工作流程標準化與跨團隊協作程序',
+    levels:['無標準流程','部分文件','BEP 標準化','流程績效量化','AI 輔助流程優化'] },
+  { key:'tech',       name:'技術', sub:'Technology', color:'#7F77DD',
+    desc:'BIM 軟硬體工具選型與技術基礎架構',
+    levels:['基礎 2D CAD','BIM 軟體引入','統一 BIM 平台','CDE + API 整合','數位孿生就緒'] },
+  { key:'data',       name:'資料', sub:'Data',       color:'#BA7517',
+    desc:'資訊需求定義、資料標準與交付成果管理',
+    levels:['無資料標準','部分命名規則','OIR/AIR 完整','資料品質自動驗證','全生命週期閉環'] },
+  { key:'governance', name:'治理', sub:'Governance', color:'#E8720C',
+    desc:'BIM 政策制定、品質審查與稽核能力',
+    levels:['無正式政策','基本合規認知','BIM 規程文件化','符合 ISO 19650','引領產業標準'] },
+];
+
+const levelNames = ['','初始','發展中','已定義','已管理','優化中'];
+const scores = {};
+dims.forEach(d => scores[d.key] = 1);
+
+function getOverallLevel(avg) {
+  if (avg < 1.5) return '初始階段';
+  if (avg < 2.5) return '發展中';
+  if (avg < 3.5) return '已定義';
+  if (avg < 4.5) return '已管理';
+  return '優化中';
+}
+
+function updateSubtitle() {
+  const g = document.getElementById('groupName').value;
+  const o = document.getElementById('orgName').value;
+  const intro = (g || o) ? `${o}${g ? ' ' + g : ''}` : '';
+  document.getElementById('chartSubtitle').textContent =
+    intro ? `${intro} 的 ISO 19650 BIM 成熟度評估結果` : '調整左側滑桿，雷達圖即時更新';
+}
+
+function buildSliders() {
+  const panel = document.getElementById('slidersPanel');
+  dims.forEach(d => {
+    const card = document.createElement('div');
+    card.className = 'dim-card';
+    card.innerHTML = `
+      <div class="dim-header">
+        <div class="dim-dot" style="background:${d.color}"></div>
+        <span class="dim-name">${d.name}</span>
+        <span class="dim-sub">${d.sub}</span>
+      </div>
+      <div class="dim-desc">${d.desc}</div>
+      <style>
+        #slider-${d.key}::-webkit-slider-thumb { background: ${d.color}; }
+        #slider-${d.key}::-moz-range-thumb { background: ${d.color}; }
+      </style>
+      <div class="slider-row">
+        <input type="range" min="1" max="5" step="1" value="1" id="slider-${d.key}"
+          oninput="updateScore('${d.key}', this.value)" />
+        <div class="score-badge" id="badge-${d.key}"
+          style="background:${d.color}22; color:${d.color}; border:1px solid ${d.color}55">1</div>
+        <div class="level-label" id="level-${d.key}">初始</div>
+      </div>`;
+    panel.appendChild(card);
+  });
+}
+
+function buildSummary() {
+  const grid = document.getElementById('summaryGrid');
+  grid.innerHTML = '';
+  dims.forEach(d => {
+    const card = document.createElement('div');
+    card.className = 'summary-card';
+    card.id = `sum-${d.key}`;
+    card.innerHTML = `<div class="val" style="color:${d.color}">${scores[d.key]}</div>
+                      <div class="lbl">${d.name}</div>`;
+    grid.appendChild(card);
+  });
+}
+
+let radarChart;
+function initChart() {
+  const ctx = document.getElementById('radarChart').getContext('2d');
+  radarChart = new Chart(ctx, {
+    type: 'radar',
+    data: {
+      labels: dims.map(d => d.name),
+      datasets: [{
+        label: '成熟度分數',
+        data: dims.map(d => scores[d.key]),
+        backgroundColor: 'rgba(29,158,117,0.15)',
+        borderColor: '#1D9E75',
+        borderWidth: 2.5,
+        pointBackgroundColor: dims.map(d => d.color),
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2,
+        pointRadius: 5,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        r: {
+          min: 0, max: 5,
+          ticks: { stepSize: 1, font: { size: 10 }, color: '#999', backdropColor: 'transparent' },
+          grid: { color: 'rgba(0,0,0,0.08)' },
+          angleLines: { color: 'rgba(0,0,0,0.1)' },
+          pointLabels: { font: { size: 12, weight: '600' }, color: dims.map(d => d.color) }
+        }
+      }
+    }
+  });
+}
+
+function updateScore(key, val) {
+  scores[key] = parseInt(val);
+  document.getElementById(`badge-${key}`).textContent = val;
+  document.getElementById(`level-${key}`).textContent = levelNames[val] || '';
+  const sumEl = document.getElementById(`sum-${key}`);
+  if (sumEl) sumEl.querySelector('.val').textContent = val;
+  radarChart.data.datasets[0].data = dims.map(d => scores[d.key]);
+  radarChart.update('active');
+  const avg = dims.reduce((s, d) => s + scores[d.key], 0) / 6;
+  document.getElementById('avgScore').textContent = avg.toFixed(1);
+  document.getElementById('levelText').textContent = getOverallLevel(avg);
+}
+
+function exportAnalysis() {
+  const lines = dims.map(d => `${d.name}：${scores[d.key]} 分（${levelNames[scores[d.key]]}）`).join('、');
+  const avg = (dims.reduce((s,d) => s + scores[d.key], 0) / 6).toFixed(1);
+  const g = document.getElementById('groupName').value || '';
+  const o = document.getElementById('orgName').value || '';
+  const dt = document.getElementById('evalDate').value || '';
+  const text = `【ISO 19650 BIM 成熟度自評結果】\n組別：${g}　組織：${o}　日期：${dt}\n\n六大面向分數：${lines}\n\n綜合平均：${avg} 分（${getOverallLevel(parseFloat(avg))}）`;
+  navigator.clipboard.writeText(text).then(() => alert('✅ 分析摘要已複製到剪貼簿！')).catch(() => {
+    prompt('請手動複製以下文字：', text);
+  });
+}
+
+document.getElementById('evalDate').valueAsDate = new Date();
+buildSliders();
+initChart();
+buildSummary();
+</script>
+</body>
+</html>
