@@ -195,6 +195,11 @@ function buildSliders() {
         <div class="score-badge" id="badge-${d.key}"
           style="background:${d.color}22; color:${d.color}; border:1px solid ${d.color}55">1</div>
         <div class="level-label" id="level-${d.key}">初始</div>
+      </div>
+      <div class="level-desc-box" id="desc-${d.key}"
+        style="margin-top:8px; padding:7px 10px; border-radius:6px; font-size:11px; line-height:1.5;
+               background:${d.color}11; border-left:3px solid ${d.color}; color:#444;">
+        ${d.levels[0]}
       </div>`;
     panel.appendChild(card);
   });
@@ -250,9 +255,12 @@ function initChart() {
 }
 
 function updateScore(key, val) {
-  scores[key] = parseInt(val);
+  const idx = parseInt(val);
+  scores[key] = idx;
   document.getElementById(`badge-${key}`).textContent = val;
-  document.getElementById(`level-${key}`).textContent = levelNames[val] || '';
+  document.getElementById(`level-${key}`).textContent = levelNames[idx] || '';
+  const dim = dims.find(d => d.key === key);
+  if (dim) document.getElementById(`desc-${key}`).textContent = dim.levels[idx - 1] || '';
   const sumEl = document.getElementById(`sum-${key}`);
   if (sumEl) sumEl.querySelector('.val').textContent = val;
   radarChart.data.datasets[0].data = dims.map(d => scores[d.key]);
